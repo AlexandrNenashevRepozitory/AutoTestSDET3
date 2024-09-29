@@ -10,7 +10,6 @@ import lombok.Setter;
 
 public class Addition {
 
-
     private String additional_info;
 
 }

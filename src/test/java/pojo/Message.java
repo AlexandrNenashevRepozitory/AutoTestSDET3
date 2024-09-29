@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -15,9 +14,7 @@ public class Message {
 
     private Addition addition;
 
-
     private List<Integer> important_numbers;
-
 
     private String title;
 

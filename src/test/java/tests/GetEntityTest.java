@@ -2,85 +2,64 @@ package tests;
 
 import helpers.Specifications;
 import io.qameta.allure.Step;
-import io.restassured.response.Response;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import pojo.Addition;
 import pojo.Message;
-
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 public class GetEntityTest {
     private static RequestSpecification requestSpecification;
     private static String entityId;
-
-    static Message message;
-
+    private static Message message;
 
     @BeforeAll
     public static void setup() throws IOException {
+        Random random = new Random();
         requestSpecification = Specifications.requestSpec();
-    }
 
-    @Test
-    @DisplayName("Создание сущности")
-    @Step("Сущность создана")
-    @Order(1)
-    public void testCreateEntity() {
-
-        // Создаем объект Addition
         Addition addition = Addition.builder()
                 .additional_info("Дополнительные сведения")
                 .build();
 
-        // Создаем объект Message
         message = Message.builder()
                 .addition(addition)
-                .important_numbers(Arrays.asList(1, 2, 3))
+                .important_numbers(Arrays.asList(random.nextInt(), random.nextInt(), random.nextInt()))
                 .title("Заголовок сущности")
                 .verified(true)
                 .build();
 
-        // Выполняем POST-запрос на создание сущности
-        Response response = given()
-                .spec(requestSpecification)
-                .body(message)
-                .when()
-                .post("/create");
-
-        response.then().statusCode(200);  // Проверка статус-кода
-
-        // Извлекаем ID созданной сущности и сохраняем в статическую переменную
-        entityId = response.getBody().asString();
+        entityId = Specifications.createEntity(message);
     }
-
 
     @Test
     @DisplayName("Получение сущности")
     @Step("Сущность получена")
-    @Order(2)
-    public void testGetEntity() {
-
-        given()
+    public void testCreateEntity() {
+        Message expectedMessage = given()
                 .spec(requestSpecification)
                 .when()
                 .log().all()
-                .get("/get/" + entityId)
+                .get("get/" + entityId)
                 .then()
                 .log().all()
                 .statusCode(200)  // Проверка статус-кода
-                .body("addition.additional_info", equalTo(message.getAddition().getAdditional_info()),
-                        "important_numbers", equalTo(message.getImportant_numbers()),
-                        "title", equalTo(message.getTitle()),
-                        "verified", equalTo(message.getVerified()));
+                .extract()
+                .as(Message.class, ObjectMapperType.GSON);
 
-            Specifications.deleteEntity(entityId);
-        }
+        Assertions.assertEquals(message.getTitle(), expectedMessage.getTitle());
+        Assertions.assertEquals(message.getImportant_numbers(), expectedMessage.getImportant_numbers());
+        Assertions.assertEquals(message.getAddition(), expectedMessage.getAddition());
+        Assertions.assertEquals(message.getVerified(), expectedMessage.getVerified());
+    }
+
+    @AfterAll
+    public static void clean() {
+        Specifications.deleteEntity(entityId);
+    }
 }
