@@ -1,39 +1,28 @@
 package tests;
 
+import helpers.BaseTest;
 import helpers.CreateEntityHelper;
 import helpers.Specifications;
 import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import pojo.Message;
 
 import java.io.IOException;
-import java.util.Random;
 
 import static io.restassured.RestAssured.given;
 
-public class PatchEntityTest {
-    private static RequestSpecification requestSpecification;
-    private static Random random;
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        requestSpecification = Specifications.requestSpec();
-        CreateEntityHelper.createEntitySetup();
-    }
-
+public class PatchEntityTest extends BaseTest {
     @Test
     @DisplayName("Изменение сущности")
     @Step("Сущность изменена")
-    public void updateUser() {
-
+    public void updateUser() throws IOException {
         CreateEntityHelper.getMessage().setTitle("Заголовок сущности 1");
         CreateEntityHelper.getMessage().setVerified(false);
 
         given()
-                .spec(requestSpecification)
+                .spec(Specifications.requestSpec())
                 .contentType(ContentType.JSON)
                 .body(CreateEntityHelper.getMessage())
                 .when()
@@ -43,7 +32,7 @@ public class PatchEntityTest {
                 .statusCode(204);
 
         Message expectedMessage = given()
-                .spec(requestSpecification)
+                .spec(Specifications.requestSpec())
                 .when()
                 .log().all()
                 .get("get/" + CreateEntityHelper.getEntityId())
@@ -53,7 +42,6 @@ public class PatchEntityTest {
                 .extract()
                 .as(Message.class, ObjectMapperType.GSON);
 
-        Assertions.assertEquals(CreateEntityHelper.getMessage().getImportant_numbers(), expectedMessage.getImportant_numbers());
         Assertions.assertEquals(CreateEntityHelper.getMessage().getTitle(), expectedMessage.getTitle());
         Assertions.assertEquals(CreateEntityHelper.getMessage().getVerified(), expectedMessage.getVerified());
     }

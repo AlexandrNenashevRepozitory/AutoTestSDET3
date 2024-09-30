@@ -1,32 +1,22 @@
 package tests;
 
+import helpers.BaseTest;
 import helpers.CreateEntityHelper;
 import helpers.Specifications;
 import io.qameta.allure.Step;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.*;
 import pojo.Message;
 import java.io.IOException;
 import static io.restassured.RestAssured.given;
 
-
-public class CreateEntityTest {
-    private static RequestSpecification requestSpecification;
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        requestSpecification = Specifications.requestSpec();
-        CreateEntityHelper.createEntitySetup();
-
-    }
-
+public class CreateEntityTest extends BaseTest {
     @Test
     @DisplayName("Создание сущности")
     @Step("Сущность создана")
-    public void testCreateEntity() {
+    public void testCreateEntity() throws IOException {
         Message expectedMessage = given()
-                .spec(requestSpecification)
+                .spec(Specifications.requestSpec())
                 .when()
                 .log().all()
                 .get("get/" + CreateEntityHelper.getEntityId())
@@ -41,7 +31,6 @@ public class CreateEntityTest {
         Assertions.assertEquals(CreateEntityHelper.getMessage().getVerified(), expectedMessage.getVerified());
         Assertions.assertEquals(CreateEntityHelper.getMessage().getImportant_numbers(), expectedMessage.getImportant_numbers());
     }
-
     @AfterAll
     public static void clean() {
         Specifications.deleteEntity(CreateEntityHelper.getEntityId());

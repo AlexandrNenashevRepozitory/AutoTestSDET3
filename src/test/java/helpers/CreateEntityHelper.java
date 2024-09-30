@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class CreateEntityHelper {
-    private static RequestSpecification requestSpecification;
+    public static RequestSpecification requestSpecification;
 
     @Setter
     @Getter
@@ -20,23 +20,21 @@ public class CreateEntityHelper {
     @Setter
     @Getter
     private static Message message;
+        public static void createEntitySetup() throws IOException {
+            Random random = new Random();
+            requestSpecification = Specifications.requestSpec();
 
+            Addition addition = Addition.builder()
+                    .additional_info("Дополнительные сведения")
+                    .build();
 
-    public static String createEntitySetup() throws IOException {
-        Random random = new Random();
-        requestSpecification = Specifications.requestSpec();
+            message = Message.builder()
+                    .addition(addition)
+                    .important_numbers(Arrays.asList(random.nextInt(), random.nextInt(), random.nextInt()))
+                    .title("Заголовок сущности")
+                    .verified(true)
+                    .build();
 
-        Addition addition = Addition.builder()
-                .additional_info("Дополнительные сведения")
-                .build();
-
-        message = Message.builder()
-                .addition(addition)
-                .important_numbers(Arrays.asList(random.nextInt(), random.nextInt(), random.nextInt()))
-                .title("Заголовок сущности")
-                .verified(true)
-                .build();
-
-        return entityId = Specifications.createEntity(message);
-    }
+            entityId = Specifications.createEntity(message);
+        }
 }

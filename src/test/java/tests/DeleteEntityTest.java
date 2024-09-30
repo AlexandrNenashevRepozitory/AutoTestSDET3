@@ -1,41 +1,29 @@
 package tests;
 
+import helpers.BaseTest;
 import helpers.CreateEntityHelper;
 import helpers.Specifications;
 import io.qameta.allure.Step;
-import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-
 import static io.restassured.RestAssured.given;
 
 
-public class DeleteEntityTest {
-    private static RequestSpecification requestSpecification;
-    private static String entityId;
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        requestSpecification = Specifications.requestSpec();
-        CreateEntityHelper.createEntitySetup();
-    }
-
+public class DeleteEntityTest extends BaseTest  {
     @Test
     @DisplayName("Проверка удаления сущности")
     @Step("Сущность удалена")
-    public void testCreateEntity() {
+    public void testCreateEntity() throws IOException {
         given()
-                .spec(requestSpecification)
+                .spec(Specifications.requestSpec())
                 .when()
                 .delete("/delete/" + CreateEntityHelper.getEntityId())
                 .then()
                 .statusCode(204);
 
         given()
-                .spec(requestSpecification)
+                .spec(Specifications.requestSpec())
                 .when()
                 .log().all()
                 .get("get/" + CreateEntityHelper.getEntityId())
