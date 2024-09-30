@@ -1,40 +1,28 @@
 package tests;
 
+import helpers.CreateEntityHelper;
 import helpers.Specifications;
 import io.qameta.allure.Step;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.*;
-import pojo.Addition;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import pojo.Message;
+
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Random;
 
 import static io.restassured.RestAssured.given;
 
 public class GetEntityTest {
     private static RequestSpecification requestSpecification;
-    private static String entityId;
-    private static Message message;
 
     @BeforeAll
     public static void setup() throws IOException {
-        Random random = new Random();
         requestSpecification = Specifications.requestSpec();
-
-        Addition addition = Addition.builder()
-                .additional_info("Дополнительные сведения")
-                .build();
-
-        message = Message.builder()
-                .addition(addition)
-                .important_numbers(Arrays.asList(random.nextInt(), random.nextInt(), random.nextInt()))
-                .title("Заголовок сущности")
-                .verified(true)
-                .build();
-
-        entityId = Specifications.createEntity(message);
+        CreateEntityHelper.createEntitySetup();
     }
 
     @Test
@@ -45,21 +33,20 @@ public class GetEntityTest {
                 .spec(requestSpecification)
                 .when()
                 .log().all()
-                .get("get/" + entityId)
+                .get("get/" + CreateEntityHelper.getEntityId())
                 .then()
                 .log().all()
                 .statusCode(200)  // Проверка статус-кода
                 .extract()
                 .as(Message.class, ObjectMapperType.GSON);
 
-        Assertions.assertEquals(message.getTitle(), expectedMessage.getTitle());
-        Assertions.assertEquals(message.getImportant_numbers(), expectedMessage.getImportant_numbers());
-        Assertions.assertEquals(message.getAddition(), expectedMessage.getAddition());
-        Assertions.assertEquals(message.getVerified(), expectedMessage.getVerified());
+        Assertions.assertEquals(CreateEntityHelper.getMessage().getTitle(), expectedMessage.getTitle());
+        Assertions.assertEquals(CreateEntityHelper.getMessage().getImportant_numbers(), expectedMessage.getImportant_numbers());
+        Assertions.assertEquals(CreateEntityHelper.getMessage().getAddition(), expectedMessage.getAddition());
+        Assertions.assertEquals(CreateEntityHelper.getMessage().getVerified(), expectedMessage.getVerified());
     }
-
     @AfterAll
     public static void clean() {
-        Specifications.deleteEntity(entityId);
+        Specifications.deleteEntity(CreateEntityHelper.getEntityId());
     }
 }

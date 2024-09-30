@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 public class Message {
 
-
     private Addition addition;
 
     private List<Integer> important_numbers;

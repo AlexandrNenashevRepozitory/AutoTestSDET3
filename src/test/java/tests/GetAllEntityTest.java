@@ -1,12 +1,15 @@
 package tests;
 
+import helpers.CreateEntityHelper;
 import helpers.Specifications;
 import io.qameta.allure.Step;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
+
 import static io.restassured.RestAssured.given;
 
 public class GetAllEntityTest {
@@ -15,6 +18,7 @@ public class GetAllEntityTest {
     @BeforeAll
     public static void setup() throws IOException {
         requestSpecification = Specifications.requestSpec();
+        CreateEntityHelper.createEntitySetup();
     }
 
     @Test
